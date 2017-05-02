@@ -56,27 +56,27 @@ func NewDevstatCollector() (Collector, error) {
 		bytes: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, devstatSubsystem, "bytes_total"),
 			"The total number of bytes in transactions.",
-			[]string{"device", "type"}, nil,
+			[]string{"device", "type", "agentIP", "environmentUUID"}, nil,
 		), prometheus.CounterValue},
 		transfers: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, devstatSubsystem, "transfers_total"),
 			"The total number of transactions.",
-			[]string{"device", "type"}, nil,
+			[]string{"device", "type", "agentIP", "environmentUUID"}, nil,
 		), prometheus.CounterValue},
 		duration: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, devstatSubsystem, "duration_seconds_total"),
 			"The total duration of transactions in seconds.",
-			[]string{"device", "type"}, nil,
+			[]string{"device", "type", "agentIP", "environmentUUID"}, nil,
 		), prometheus.CounterValue},
 		busyTime: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, devstatSubsystem, "busy_time_seconds_total"),
 			"Total time the device had one or more transactions outstanding in seconds.",
-			[]string{"device"}, nil,
+			[]string{"device", "agentIP", "environmentUUID"}, nil,
 		), prometheus.CounterValue},
 		blocks: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, devstatSubsystem, "blocks_transferred_total"),
 			"The total number of blocks transferred.",
-			[]string{"device"}, nil,
+			[]string{"device", "agentIP", "environmentUUID"}, nil,
 		), prometheus.CounterValue},
 	}, nil
 }
@@ -97,16 +97,16 @@ func (c *devstatCollector) Update(ch chan<- prometheus.Metric) error {
 		stat := (*C.Stats)(unsafe.Pointer(uintptr(base) + uintptr(offset)))
 
 		device := fmt.Sprintf("%s%d", C.GoString(&stat.device[0]), stat.unit)
-		ch <- c.bytes.mustNewConstMetric(float64(stat.bytes.read), device, "read")
-		ch <- c.bytes.mustNewConstMetric(float64(stat.bytes.write), device, "write")
-		ch <- c.transfers.mustNewConstMetric(float64(stat.transfers.other), device, "other")
-		ch <- c.transfers.mustNewConstMetric(float64(stat.transfers.read), device, "read")
-		ch <- c.transfers.mustNewConstMetric(float64(stat.transfers.write), device, "write")
-		ch <- c.duration.mustNewConstMetric(float64(stat.duration.other), device, "other")
-		ch <- c.duration.mustNewConstMetric(float64(stat.duration.read), device, "read")
-		ch <- c.duration.mustNewConstMetric(float64(stat.duration.write), device, "write")
-		ch <- c.busyTime.mustNewConstMetric(float64(stat.busyTime), device)
-		ch <- c.blocks.mustNewConstMetric(float64(stat.blocks), device)
+		ch <- c.bytes.mustNewConstMetric(float64(stat.bytes.read), device, "read", "agentIP", "environmentUUID")
+		ch <- c.bytes.mustNewConstMetric(float64(stat.bytes.write), device, "write", "agentIP", "environmentUUID")
+		ch <- c.transfers.mustNewConstMetric(float64(stat.transfers.other), device, "other", "agentIP", "environmentUUID")
+		ch <- c.transfers.mustNewConstMetric(float64(stat.transfers.read), device, "read", "agentIP", "environmentUUID")
+		ch <- c.transfers.mustNewConstMetric(float64(stat.transfers.write), device, "write", "agentIP", "environmentUUID")
+		ch <- c.duration.mustNewConstMetric(float64(stat.duration.other), device, "other", "agentIP", "environmentUUID")
+		ch <- c.duration.mustNewConstMetric(float64(stat.duration.read), device, "read", "agentIP", "environmentUUID")
+		ch <- c.duration.mustNewConstMetric(float64(stat.duration.write), device, "write", "agentIP", "environmentUUID")
+		ch <- c.busyTime.mustNewConstMetric(float64(stat.busyTime), device, "agentIP", "environmentUUID")
+		ch <- c.blocks.mustNewConstMetric(float64(stat.blocks), device, "agentIP", "environmentUUID")
 	}
 	C.free(unsafe.Pointer(stats))
 	return nil

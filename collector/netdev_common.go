@@ -63,7 +63,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 				desc = prometheus.NewDesc(
 					prometheus.BuildFQName(Namespace, c.subsystem, key),
 					fmt.Sprintf("Network device statistic %s.", key),
-					[]string{"device"},
+					[]string{"device", "agentIP", "environmentUUID"},
 					nil,
 				)
 				c.metricDescs[key] = desc
@@ -72,7 +72,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 			if err != nil {
 				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
 			}
-			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, v, dev)
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, v, dev, agentIP, environmentUUID)
 		}
 	}
 	return nil

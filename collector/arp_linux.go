@@ -39,7 +39,7 @@ func NewARPCollector() (Collector, error) {
 		entries: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "arp", "entries"),
 			"ARP entries by device",
-			[]string{"device"}, nil,
+			[]string{"device", "agentIP", "environmentUUID"}, nil,
 		),
 	}, nil
 }
@@ -95,7 +95,7 @@ func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for device, entryCount := range entries {
 		ch <- prometheus.MustNewConstMetric(
-			c.entries, prometheus.GaugeValue, float64(entryCount), device)
+			c.entries, prometheus.GaugeValue, float64(entryCount), device, agentIP, environmentUUID)
 	}
 
 	return nil

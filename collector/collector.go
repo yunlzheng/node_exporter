@@ -17,6 +17,10 @@ package collector
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"fmt"
+	"net/http"
+	"io/ioutil"
+	"os"
 )
 
 // Namespace defines the common namespace to be used by all metrics.
@@ -24,6 +28,19 @@ const Namespace = "node"
 
 // Factories contains the list of all available collectors.
 var Factories = make(map[string]func() (Collector, error))
+
+var (
+	metadataServer = getEnv("RANCHER_METADATA", "http://169.254.169.250")
+)
+
+// getEnv - Allows us to supply a fallback option if nothing specified
+func getEnv(key, fallback string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return fallback
+	}
+	return value
+}
 
 func warnDeprecated(collector string) {
 	log.Warnf("The %s collector is deprecated and will be removed in the future!", collector)
@@ -38,6 +55,25 @@ type Collector interface {
 type typedDesc struct {
 	desc      *prometheus.Desc
 	valueType prometheus.ValueType
+}
+
+var agentIP string
+var environmentUUID string
+
+func init() {
+	environmentUUID, _ = getMetadata("environment_uuid")
+	agentIP, _ = getMetadata("agent_ip")
+	fmt.Println("init() current agent_ip: %s environment_uuid: %s", agentIP, environmentUUID)
+}
+
+func getMetadata(key string) (string, error) {
+	resp, err := http.Get(metadataServer + "/latest/self/host/" + key)
+	if err != nil {
+		fmt.Println(err.Error())
+		return "", err
+	}
+	data, _ := ioutil.ReadAll(resp.Body)
+	return string(data), nil
 }
 
 func (d *typedDesc) mustNewConstMetric(value float64, labels ...string) prometheus.Metric {

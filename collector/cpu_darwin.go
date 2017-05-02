@@ -112,7 +112,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 			"nice":   C.CPU_STATE_NICE,
 			"idle":   C.CPU_STATE_IDLE,
 		} {
-			ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, float64(cpu_ticks[v])/ClocksPerSec, "cpu"+strconv.Itoa(i), k, "127.0.0.1", "environmentUUID")
+			ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, float64(cpu_ticks[v])/ClocksPerSec, "cpu"+strconv.Itoa(i), k, agentIP, environmentUUID)
 		}
 	}
 	return nil
