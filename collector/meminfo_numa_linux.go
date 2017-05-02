@@ -68,10 +68,10 @@ func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) error {
 			desc = prometheus.NewDesc(
 				prometheus.BuildFQName(Namespace, memInfoNumaSubsystem, v.metricName),
 				fmt.Sprintf("Memory information field %s.", v.metricName),
-				[]string{"node"}, nil)
+				[]string{"node", "agentIP", "environmentUUID"}, nil)
 			c.metricDescs[v.metricName] = desc
 		}
-		ch <- prometheus.MustNewConstMetric(desc, v.metricType, v.value, v.numaNode)
+		ch <- prometheus.MustNewConstMetric(desc, v.metricType, v.value, v.numaNode, agentIP, environmentUUID)
 	}
 	return nil
 }

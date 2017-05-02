@@ -51,9 +51,10 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) error {
 			prometheus.NewDesc(
 				prometheus.BuildFQName(Namespace, memInfoSubsystem, k),
 				fmt.Sprintf("Memory information field %s.", k),
-				nil, nil,
+				[]string{"agentIP", "environmentUUID"}, nil,
 			),
 			prometheus.GaugeValue, v,
+			agentIP, environmentUUID,
 		)
 	}
 	return nil
