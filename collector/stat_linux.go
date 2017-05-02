@@ -48,37 +48,37 @@ func NewStatCollector() (Collector, error) {
 		cpu: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "cpu"),
 			"Seconds the cpus spent in each mode.",
-			[]string{"cpu", "mode"}, nil,
+			[]string{"cpu", "mode", "agentIP", "environmentUUID"}, nil,
 		),
 		intr: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "intr"),
 			"Total number of interrupts serviced.",
-			nil, nil,
+			[]string{"agentIP", "environmentUUID"}, nil,
 		),
 		ctxt: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "context_switches"),
 			"Total number of context switches.",
-			nil, nil,
+			[]string{"agentIP", "environmentUUID"}, nil,
 		),
 		forks: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "forks"),
 			"Total number of forks.",
-			nil, nil,
+			[]string{"agentIP", "environmentUUID"}, nil,
 		),
 		btime: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "boot_time"),
 			"Node boot time, in unixtime.",
-			nil, nil,
+			[]string{"agentIP", "environmentUUID"}, nil,
 		),
 		procsRunning: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "procs_running"),
 			"Number of processes in runnable state.",
-			nil, nil,
+			[]string{"agentIP", "environmentUUID"}, nil,
 		),
 		procsBlocked: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "procs_blocked"),
 			"Number of processes blocked waiting for I/O to complete.",
-			nil, nil,
+			[]string{"agentIP", "environmentUUID"}, nil,
 		),
 	}, nil
 }
@@ -117,7 +117,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 				// Convert from ticks to seconds
 				value /= userHz
-				ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, parts[0], cpuFields[i])
+				ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, parts[0], cpuFields[i], agentIP, environmentUUID)
 			}
 		case parts[0] == "intr":
 			// Only expose the overall number, use the 'interrupts' collector for more detail.
@@ -125,37 +125,37 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.intr, prometheus.CounterValue, value)
+			ch <- prometheus.MustNewConstMetric(c.intr, prometheus.CounterValue, value, agentIP, environmentUUID)
 		case parts[0] == "ctxt":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.ctxt, prometheus.CounterValue, value)
+			ch <- prometheus.MustNewConstMetric(c.ctxt, prometheus.CounterValue, value, agentIP, environmentUUID)
 		case parts[0] == "processes":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.forks, prometheus.CounterValue, value)
+			ch <- prometheus.MustNewConstMetric(c.forks, prometheus.CounterValue, value, agentIP, environmentUUID)
 		case parts[0] == "btime":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.btime, prometheus.GaugeValue, value)
+			ch <- prometheus.MustNewConstMetric(c.btime, prometheus.GaugeValue, value, agentIP, environmentUUID)
 		case parts[0] == "procs_running":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, value)
+			ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, value, agentIP, environmentUUID)
 		case parts[0] == "procs_blocked":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, value)
+			ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, value, agentIP, environmentUUID)
 		}
 	}
 	return scanner.Err()
