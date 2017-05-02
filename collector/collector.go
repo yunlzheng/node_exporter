@@ -15,11 +15,11 @@
 package collector
 
 import (
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
-	"fmt"
-	"net/http"
 	"io/ioutil"
+	"net/http"
 	"os"
 )
 
@@ -63,7 +63,7 @@ var environmentUUID string
 func init() {
 	environmentUUID, _ = getMetadata("environment_uuid")
 	agentIP, _ = getMetadata("agent_ip")
-	fmt.Println("init() current agent_ip: %s environment_uuid: %s", agentIP, environmentUUID)
+	fmt.Printf("init() current agent_ip: %s environment_uuid: %s", agentIP, environmentUUID)
 }
 
 func getMetadata(key string) (string, error) {
