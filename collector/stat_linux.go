@@ -48,37 +48,37 @@ func NewStatCollector() (Collector, error) {
 		cpu: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "cpu"),
 			"Seconds the cpus spent in each mode.",
-			[]string{"cpu", "mode", "agentIP", "environmentUUID"}, nil,
+			[]string{"cpu", "mode", "agentIP", "environmentUUID", "hostName"}, nil,
 		),
 		intr: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "intr"),
 			"Total number of interrupts serviced.",
-			[]string{"agentIP", "environmentUUID"}, nil,
+			[]string{"agentIP", "environmentUUID", "hostName"}, nil,
 		),
 		ctxt: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "context_switches"),
 			"Total number of context switches.",
-			[]string{"agentIP", "environmentUUID"}, nil,
+			[]string{"agentIP", "environmentUUID", "hostName"}, nil,
 		),
 		forks: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "forks"),
 			"Total number of forks.",
-			[]string{"agentIP", "environmentUUID"}, nil,
+			[]string{"agentIP", "environmentUUID", "hostName"}, nil,
 		),
 		btime: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "boot_time"),
 			"Node boot time, in unixtime.",
-			[]string{"agentIP", "environmentUUID"}, nil,
+			[]string{"agentIP", "environmentUUID", "hostName"}, nil,
 		),
 		procsRunning: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "procs_running"),
 			"Number of processes in runnable state.",
-			[]string{"agentIP", "environmentUUID"}, nil,
+			[]string{"agentIP", "environmentUUID", "hostName"}, nil,
 		),
 		procsBlocked: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "procs_blocked"),
 			"Number of processes blocked waiting for I/O to complete.",
-			[]string{"agentIP", "environmentUUID"}, nil,
+			[]string{"agentIP", "environmentUUID", "hostName"}, nil,
 		),
 	}, nil
 }
@@ -117,7 +117,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 				// Convert from ticks to seconds
 				value /= userHz
-				ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, parts[0], cpuFields[i], agentIP, environmentUUID)
+				ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, parts[0], cpuFields[i], agentIP, environmentUUID, hostName)
 			}
 		case parts[0] == "intr":
 			// Only expose the overall number, use the 'interrupts' collector for more detail.
@@ -125,37 +125,37 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.intr, prometheus.CounterValue, value, agentIP, environmentUUID)
+			ch <- prometheus.MustNewConstMetric(c.intr, prometheus.CounterValue, value, agentIP, environmentUUID, hostName)
 		case parts[0] == "ctxt":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.ctxt, prometheus.CounterValue, value, agentIP, environmentUUID)
+			ch <- prometheus.MustNewConstMetric(c.ctxt, prometheus.CounterValue, value, agentIP, environmentUUID, hostName)
 		case parts[0] == "processes":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.forks, prometheus.CounterValue, value, agentIP, environmentUUID)
+			ch <- prometheus.MustNewConstMetric(c.forks, prometheus.CounterValue, value, agentIP, environmentUUID, hostName)
 		case parts[0] == "btime":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.btime, prometheus.GaugeValue, value, agentIP, environmentUUID)
+			ch <- prometheus.MustNewConstMetric(c.btime, prometheus.GaugeValue, value, agentIP, environmentUUID, hostName)
 		case parts[0] == "procs_running":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, value, agentIP, environmentUUID)
+			ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, value, agentIP, environmentUUID, hostName)
 		case parts[0] == "procs_blocked":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, value, agentIP, environmentUUID)
+			ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, value, agentIP, environmentUUID, hostName)
 		}
 	}
 	return scanner.Err()

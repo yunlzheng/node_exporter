@@ -49,7 +49,7 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 func NewDiskstatsCollector() (Collector, error) {
-	var diskLabelNames = []string{"device", "agentIP", "environmentUUID"}
+	var diskLabelNames = []string{"device", "agentIP", "environmentUUID", "hostName"}
 
 	return &diskstatsCollector{
 		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
@@ -185,7 +185,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			if err != nil {
 				return fmt.Errorf("invalid value %s in diskstats: %s", value, err)
 			}
-			ch <- c.descs[i].mustNewConstMetric(v, dev, agentIP, environmentUUID)
+			ch <- c.descs[i].mustNewConstMetric(v, dev, agentIP, environmentUUID, hostName)
 		}
 	}
 	return nil

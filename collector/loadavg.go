@@ -34,9 +34,9 @@ func init() {
 func NewLoadavgCollector() (Collector, error) {
 	return &loadavgCollector{
 		metric: []typedDesc{
-			{prometheus.NewDesc(Namespace+"_load1", "1m load average.", []string{"agentIP", "environmentUUID"}, nil), prometheus.GaugeValue},
-			{prometheus.NewDesc(Namespace+"_load5", "5m load average.", []string{"agentIP", "environmentUUID"}, nil), prometheus.GaugeValue},
-			{prometheus.NewDesc(Namespace+"_load15", "15m load average.", []string{"agentIP", "environmentUUID"}, nil), prometheus.GaugeValue},
+			{prometheus.NewDesc(Namespace+"_load1", "1m load average.", []string{"agentIP", "environmentUUID", "hostName"}, nil), prometheus.GaugeValue},
+			{prometheus.NewDesc(Namespace+"_load5", "5m load average.", []string{"agentIP", "environmentUUID", "hostName"}, nil), prometheus.GaugeValue},
+			{prometheus.NewDesc(Namespace+"_load15", "15m load average.", []string{"agentIP", "environmentUUID", "hostName"}, nil), prometheus.GaugeValue},
 		},
 	}, nil
 }
@@ -48,7 +48,7 @@ func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	for i, load := range loads {
 		log.Info("return load %d: %f", i, load)
-		ch <- c.metric[i].mustNewConstMetric(load, agentIP, environmentUUID)
+		ch <- c.metric[i].mustNewConstMetric(load, agentIP, environmentUUID, hostName)
 	}
 	return err
 }

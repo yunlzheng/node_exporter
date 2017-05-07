@@ -42,7 +42,7 @@ func NewBuddyinfoCollector() (Collector, error) {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, buddyInfoSubsystem, "count"),
 		"Count of free blocks according to size.",
-		[]string{"node", "zone", "size", "agentIP", "environmentUUID"}, nil,
+		[]string{"node", "zone", "size", "agentIP", "environmentUUID", "hostName"}, nil,
 	)
 	return &buddyinfoCollector{desc}, nil
 }
@@ -67,7 +67,7 @@ func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) error {
 				c.desc,
 				prometheus.GaugeValue, value,
 				entry.Node, entry.Zone, strconv.Itoa(size),
-				agentIP, environmentUUID,
+				agentIP, environmentUUID, hostName,
 			)
 		}
 	}

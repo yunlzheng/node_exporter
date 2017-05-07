@@ -96,12 +96,12 @@ func NewStatCollector() (Collector, error) {
 		cpu: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "cpu", "seconds_total"),
 			"Seconds the CPU spent in each mode.",
-			[]string{"cpu", "mode", "agentIP", "environmentUUID"}, nil,
+			[]string{"cpu", "mode", "agentIP", "environmentUUID", "hostName"}, nil,
 		), prometheus.CounterValue},
 		temp: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "cpu", "temperature_celsius"),
 			"CPU temperature",
-			[]string{"cpu", "agentIP", "environmentUUID"}, nil,
+			[]string{"cpu", "agentIP", "environmentUUID", "hostName"}, nil,
 		), prometheus.GaugeValue},
 	}, nil
 }
@@ -125,11 +125,11 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	for cpu, t := range cpuTimes {
 		lcpu := strconv.Itoa(cpu)
-		ch <- c.cpu.mustNewConstMetric(float64(t.user), lcpu, "user", agentIP, environmentUUID)
-		ch <- c.cpu.mustNewConstMetric(float64(t.nice), lcpu, "nice", agentIP, environmentUUID)
-		ch <- c.cpu.mustNewConstMetric(float64(t.sys), lcpu, "system", agentIP, environmentUUID)
-		ch <- c.cpu.mustNewConstMetric(float64(t.intr), lcpu, "interrupt", agentIP, environmentUUID)
-		ch <- c.cpu.mustNewConstMetric(float64(t.idle), lcpu, "idle", agentIP, environmentUUID)
+		ch <- c.cpu.mustNewConstMetric(float64(t.user), lcpu, "user", agentIP, environmentUUID, hostName)
+		ch <- c.cpu.mustNewConstMetric(float64(t.nice), lcpu, "nice", agentIP, environmentUUID, hostName)
+		ch <- c.cpu.mustNewConstMetric(float64(t.sys), lcpu, "system", agentIP, environmentUUID, hostName)
+		ch <- c.cpu.mustNewConstMetric(float64(t.intr), lcpu, "interrupt", agentIP, environmentUUID, hostName)
+		ch <- c.cpu.mustNewConstMetric(float64(t.idle), lcpu, "idle", agentIP, environmentUUID, hostName)
 
 		temp, err := unix.SysctlUint32(fmt.Sprintf("dev.cpu.%d.temperature", cpu))
 		if err != nil {
@@ -143,7 +143,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			continue
 		}
-		ch <- c.temp.mustNewConstMetric(float64(temp-2732)/10, lcpu, agentIP, environmentUUID)
+		ch <- c.temp.mustNewConstMetric(float64(temp-2732)/10, lcpu, agentIP, environmentUUID, hostName)
 	}
 	return err
 }

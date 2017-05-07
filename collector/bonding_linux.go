@@ -41,12 +41,12 @@ func NewBondingCollector() (Collector, error) {
 		slaves: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "bonding", "slaves"),
 			"Number of configured slaves per bonding interface.",
-			[]string{"master", "agentIP", "environmentUUID"}, nil,
+			[]string{"master", "agentIP", "environmentUUID", "hostName"}, nil,
 		), prometheus.GaugeValue},
 		active: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "bonding", "active"),
 			"Number of active slaves per bonding interface.",
-			[]string{"master", "agentIP", "environmentUUID"}, nil,
+			[]string{"master", "agentIP", "environmentUUID", "hostName"}, nil,
 		), prometheus.GaugeValue},
 	}, nil
 }
@@ -63,8 +63,8 @@ func (c *bondingCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 	for master, status := range bondingStats {
-		ch <- c.slaves.mustNewConstMetric(float64(status[0]), master, agentIP, environmentUUID)
-		ch <- c.active.mustNewConstMetric(float64(status[1]), master, agentIP, environmentUUID)
+		ch <- c.slaves.mustNewConstMetric(float64(status[0]), master, agentIP, environmentUUID, hostName)
+		ch <- c.active.mustNewConstMetric(float64(status[1]), master, agentIP, environmentUUID, hostName)
 	}
 	return nil
 }

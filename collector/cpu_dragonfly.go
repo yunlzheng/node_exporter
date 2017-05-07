@@ -98,7 +98,7 @@ func NewStatCollector() (Collector, error) {
 		cpu: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "cpu"),
 			"Seconds the cpus spent in each mode.",
-			[]string{"cpu", "mode", "agentIP", "environmentUUID"}, nil,
+			[]string{"cpu", "mode", "agentIP", "environmentUUID", "hostName"}, nil,
 		),
 	}, nil
 }
@@ -145,7 +145,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	cpuFields := []string{"user", "nice", "sys", "interrupt", "idle"}
 	for i, value := range cpuTimes {
 		cpux := fmt.Sprintf("cpu%d", i/fieldsCount)
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, cpux, cpuFields[i%fieldsCount], agentIP, environmentUUID)
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, cpux, cpuFields[i%fieldsCount], agentIP, environmentUUID, hostName)
 	}
 
 	return nil

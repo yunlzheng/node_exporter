@@ -16,11 +16,12 @@ package collector
 
 import (
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 )
 
 // Namespace defines the common namespace to be used by all metrics.
@@ -59,11 +60,13 @@ type typedDesc struct {
 
 var agentIP string
 var environmentUUID string
+var hostName string
 
 func init() {
 	environmentUUID, _ = getMetadata("environment_uuid")
 	agentIP, _ = getMetadata("agent_ip")
-	fmt.Printf("init() current agent_ip: %s environment_uuid: %s", agentIP, environmentUUID)
+	hostName, _ = getMetadata("hostname")
+	fmt.Printf("init() current agent_ip: %s environment_uuid: %s hostName: %s", agentIP, environmentUUID, hostName)
 }
 
 func getMetadata(key string) (string, error) {

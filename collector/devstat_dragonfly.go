@@ -109,17 +109,17 @@ func NewDevstatCollector() (Collector, error) {
 		bytesDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, devstatSubsystem, "bytes_total"),
 			"The total number of bytes transferred for reads and writes on the device.",
-			[]string{"device", "agentIP", "environmentUUID"}, nil,
+			[]string{"device", "agentIP", "environmentUUID", "hostName"}, nil,
 		),
 		transfersDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, devstatSubsystem, "transfers_total"),
 			"The total number of transactions completed.",
-			[]string{"device", "agentIP", "environmentUUID"}, nil,
+			[]string{"device", "agentIP", "environmentUUID", "hostName"}, nil,
 		),
 		blocksDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, devstatSubsystem, "blocks_total"),
 			"The total number of bytes given in terms of the devices blocksize.",
-			[]string{"device", "agentIP", "environmentUUID"}, nil,
+			[]string{"device", "agentIP", "environmentUUID", "hostName"}, nil,
 		),
 	}, nil
 }
@@ -137,9 +137,9 @@ func (c *devstatCollector) Update(ch chan<- prometheus.Metric) error {
 		stats := C._get_stats(i)
 		device := fmt.Sprintf("%s%d", C.GoString(&stats.device[0]), stats.unit)
 
-		ch <- prometheus.MustNewConstMetric(c.bytesDesc, prometheus.CounterValue, float64(stats.bytes), device, agentIP, environmentUUID)
-		ch <- prometheus.MustNewConstMetric(c.transfersDesc, prometheus.CounterValue, float64(stats.transfers), device, agentIP, environmentUUID)
-		ch <- prometheus.MustNewConstMetric(c.blocksDesc, prometheus.CounterValue, float64(stats.blocks), device, agentIP, environmentUUID)
+		ch <- prometheus.MustNewConstMetric(c.bytesDesc, prometheus.CounterValue, float64(stats.bytes), device, agentIP, environmentUUID, hostName)
+		ch <- prometheus.MustNewConstMetric(c.transfersDesc, prometheus.CounterValue, float64(stats.transfers), device, agentIP, environmentUUID, hostName)
+		ch <- prometheus.MustNewConstMetric(c.blocksDesc, prometheus.CounterValue, float64(stats.blocks), device, agentIP, environmentUUID, hostName)
 	}
 
 	return nil
